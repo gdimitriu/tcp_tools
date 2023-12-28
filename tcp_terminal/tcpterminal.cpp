@@ -27,6 +27,7 @@ void TcpTerminal::init()
     connect(ui->connectButton, SIGNAL(clicked(bool)), this, SLOT(connectTo()));
     connect(ui->disconnectButton, SIGNAL(clicked(bool)), this, SLOT(disconnectFrom()));
     connect(ui->sendButton, SIGNAL(clicked(bool)), this, SLOT(sendData()));
+    connect(ui->clearButton, SIGNAL(clicked(bool)), this, SLOT(clearReceiveData()));
 
 }
 
@@ -36,6 +37,7 @@ void TcpTerminal::connectTo()
     connect(socket, SIGNAL(connected()), this, SLOT(sockConnected()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(sockDisconnected()));
     socket->connectToHost(ui->ipValue->text(), ui->portValue->text().toInt());
+    ui->connectButton->clearFocus();
 }
 
 void TcpTerminal::disconnectFrom()
@@ -47,6 +49,7 @@ void TcpTerminal::disconnectFrom()
         delete socket;
         socket = nullptr;
     }
+    ui->disconnectButton->clearFocus();
 }
 
 void TcpTerminal::sockDisconnected()
@@ -59,6 +62,11 @@ void TcpTerminal::sockConnected()
 {
     ui->statusValue->setText("Connected");
     repaint();
+}
+
+void TcpTerminal::clearReceiveData()
+{
+    ui->receiveData->clear();
 }
 
 void TcpTerminal::sendData()
@@ -74,19 +82,23 @@ void TcpTerminal::sendData()
     {
         socket->write(str.toUtf8());
         socket->flush();
-        socket->waitForReadyRead();
-        QByteArray readData = socket->readLine();
-        socket->flush();
-        ui->receiveData->moveCursor(QTextCursor::End);
-        ui->receiveData->insertPlainText(QString::fromUtf8(readData));
-        while ( socket->bytesAvailable() > 0) {
-            readData = socket->readLine();
-            if ( readData.isEmpty() )
-                break;
+        if ( ui->sendWithResponse->isChecked() )
+        {
+            socket->waitForReadyRead();
+            QByteArray readData = socket->readLine();
+            socket->flush();
             ui->receiveData->moveCursor(QTextCursor::End);
             ui->receiveData->insertPlainText(QString::fromUtf8(readData));
+            while ( socket->bytesAvailable() > 0) {
+                readData = socket->readLine();
+                if ( readData.isEmpty() )
+                    break;
+                ui->receiveData->moveCursor(QTextCursor::End);
+                ui->receiveData->insertPlainText(QString::fromUtf8(readData));
+            }
+            QMainWindow::repaint();
+            ui->sendButton->clearFocus();
         }
-        QMainWindow::repaint();
     }
     else
     {

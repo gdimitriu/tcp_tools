@@ -16,6 +16,7 @@ private slots:
     void sendData();
     void sockConnected();
     void sockDisconnected();
+    void clearReceiveData();
 public:
     explicit TcpTerminal(QWidget *parent = 0);
     ~TcpTerminal();
