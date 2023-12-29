@@ -1,6 +1,6 @@
 #include "tcpterminal.h"
 #include "ui_tcpterminal.h"
-
+#include <QMessageBox>
 
 
 TcpTerminal::TcpTerminal(QWidget *parent) :
@@ -102,6 +102,6 @@ void TcpTerminal::sendData()
     }
     else
     {
-
+        QMessageBox::critical(this, tr("First connect to server."), tr("First connect to server"), QMessageBox::Ok);
     }
 }
