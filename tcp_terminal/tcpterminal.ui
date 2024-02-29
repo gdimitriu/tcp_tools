@@ -17,7 +17,7 @@
    <property name="contextMenuPolicy">
     <enum>Qt::NoContextMenu</enum>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>26</x>
@@ -205,9 +205,9 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QRadioButton" name="lfcrTerminator">
+           <widget class="QRadioButton" name="crlfTerminator">
             <property name="text">
-             <string>LF and CR</string>
+             <string>CR &amp; LF</string>
             </property>
            </widget>
           </item>

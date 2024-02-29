@@ -76,7 +76,7 @@ void TcpTerminal::sendData()
         str = str + "\n";
     else if ( ui->crTerminator->isChecked() )
         str = str + "\r";
-    else if ( ui->lfcrTerminator->isChecked() )
+    else if ( ui->crlfTerminator->isChecked() )
         str = str + "\r\n";
     if ( socket != nullptr)
     {
