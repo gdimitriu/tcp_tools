@@ -26,6 +26,7 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QPushButton>
+#include <QMenu>
 
 namespace Ui {
 class RobotControll;
@@ -49,6 +50,11 @@ private slots:
     void fetchFromRobot();
     void minPowerChanged();
     void maxPowerChanged();
+    void stopDistanceChanged();
+    void lowPowerDistanceChanged();
+    void loadFilePath();
+    void saveFilePath();
+    void saveAsFilePath();
 public:
     explicit RobotControll(QWidget *parent = 0);
     ~RobotControll();
@@ -56,16 +62,29 @@ public:
     Q_ENUM(LINE_TERMINATION)
     enum class MIN_MAX_POWER_CHANGES { NONE = 0, MIN = 1, MAX = 2, MINMAX = 3};
     Q_ENUM(MIN_MAX_POWER_CHANGES)
+    enum class DISTANCE_CHANGES { NONE = 0, LOW_POWER = 1, STOP = 2, BOTH =3};
+    Q_ENUM(DISTANCE_CHANGES)
+    enum class ITEM_POSITION {FIRST = 0, BEFORE = 1, CURRENT = 2, AFTER = 3, LAST = 4};
+    Q_ENUM(ITEM_POSITION)
 private:
     void init();
     QString sendWithReply(QString message);
     void sendOneWay(QString message, bool hasAck = false);
+    void sendPowerToRobotIfModified();
+
     QTcpSocket *socket;
     Ui::RobotControll *ui;
     QPushButton *currentButton;
-    bool isCurrentPowerChanges;
+
+    bool isCurrentPowerChanges;    
     MIN_MAX_POWER_CHANGES isMinMaxPowerChanged;
-    void sendPowerToRobotIfModified();
+    DISTANCE_CHANGES isDistanceChanged;
+
+    QMenu *filePathMenu;
+    QAction *loadFilePathAction;
+    QAction *saveFilePathAction;
+    QAction *saveAsFilePathAction;
+    QString currentFile;
 };
 
 #endif // ROBOTCONTROLL_H

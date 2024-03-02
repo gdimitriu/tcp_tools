@@ -33,6 +33,7 @@ RobotControll::RobotControll(QWidget *parent) :
     isCurrentPowerChanges = false;
     init();
     isMinMaxPowerChanged = MIN_MAX_POWER_CHANGES::NONE;
+    isDistanceChanged = DISTANCE_CHANGES::NONE;
 }
 
 RobotControll::~RobotControll()
@@ -75,11 +76,38 @@ void RobotControll::init()
 
     connect(ui->minimumPower, SIGNAL(editingFinished()), this, SLOT(minPowerChanged()));
     connect(ui->maximumPower, SIGNAL(editingFinished()), this, SLOT(maxPowerChanged()));
+    connect(ui->lowPowerDistance, SIGNAL(editingFinished()), this, SLOT(lowPowerDistanceChanged()));
+    connect(ui->stopDistance, SIGNAL(editingFinished()), this, SLOT(stopDistanceChanged()));
 
     //fetch config from Robot
     connect(ui->fetchButton, SIGNAL(clicked(bool)), this, SLOT(fetchFromRobot()));
     //deploy config to Robot
     connect(ui->deployButton, SIGNAL(clicked(bool)), this, SLOT(deployToRobot()));
+
+    //running with path
+    ui->itemPosition->addItem("First", QVariant::fromValue(ITEM_POSITION::FIRST));
+    ui->itemPosition->addItem("Before", QVariant::fromValue(ITEM_POSITION::BEFORE));
+    ui->itemPosition->addItem("Current", QVariant::fromValue(ITEM_POSITION::CURRENT));
+    ui->itemPosition->addItem("After", QVariant::fromValue(ITEM_POSITION::AFTER));
+    ui->itemPosition->addItem("Last", QVariant::fromValue(ITEM_POSITION::LAST));
+
+    //create UI for path
+    filePathMenu = menuBar()->addMenu(tr("&File Path"));
+    loadFilePathAction = new QAction(tr("&Load File Path"), this);
+    loadFilePathAction->setShortcut(tr("Ctrl+L"));
+    loadFilePathAction->setStatusTip(tr("Load a file which contains the robot path"));
+    connect(loadFilePathAction, SIGNAL(triggered(bool)), this, SLOT(loadFilePath()));
+    filePathMenu->addAction(loadFilePathAction);
+    saveFilePathAction = new QAction(tr("&Save File Path"), this);
+    saveFilePathAction->setShortcut(tr("Ctrl+S"));
+    saveFilePathAction->setStatusTip(tr("Save a file which contains the robot path"));
+    connect(saveFilePathAction, SIGNAL(triggered(bool)), this, SLOT(saveFilePath()));
+    filePathMenu->addAction(saveFilePathAction);
+    saveAsFilePathAction = new QAction(tr("Save As File Path"), this);
+    saveAsFilePathAction->setShortcut(tr("Ctrl+A"));
+    saveAsFilePathAction->setStatusTip(tr("Save a new file which contains the robot path"));
+    connect(saveAsFilePathAction, SIGNAL(triggered(bool)), this, SLOT(saveAsFilePath()));
+    filePathMenu->addAction(saveAsFilePathAction);
 }
 
 
@@ -257,6 +285,16 @@ void RobotControll::deployToRobot()
     value.append(ui->currentPowerLevel->text());
     value.append('#');
     sendOneWay(value, true);
+    value.clear();
+    value.append("s");
+    value.append(ui->stopDistance->text());
+    value.append('#');
+    sendOneWay(value, true);
+    value.clear();
+    value.append("d");
+    value.append(ui->lowPowerDistance->text());
+    value.append('#');
+    sendOneWay(value, true);
     ui->deployButton->clearFocus();
 }
 
@@ -271,6 +309,10 @@ void RobotControll::fetchFromRobot()
     ui->powerLevel->setRange(ui->minimumPower->text().toInt(),ui->maximumPower->text().toInt());
     ui->powerLevel->setValue(ui->minimumPower->text().toInt());
     isMinMaxPowerChanged = MIN_MAX_POWER_CHANGES::NONE;
+    value = sendWithReply("s#");
+    ui->stopDistance->setText(value.trimmed());
+    value = sendWithReply("d#");
+    ui->lowPowerDistance->setText(value.trimmed());
     ui->fetchButton->clearFocus();
 }
 
@@ -300,6 +342,22 @@ void RobotControll::maxPowerChanged()
         isMinMaxPowerChanged = MIN_MAX_POWER_CHANGES::MAX;
     else
         isMinMaxPowerChanged = MIN_MAX_POWER_CHANGES::MINMAX;
+}
+
+void RobotControll::stopDistanceChanged()
+{
+    if ( isDistanceChanged == DISTANCE_CHANGES::LOW_POWER )
+        isDistanceChanged =  DISTANCE_CHANGES::BOTH;
+    else
+        isDistanceChanged = DISTANCE_CHANGES::STOP;
+}
+
+void RobotControll::lowPowerDistanceChanged()
+{
+    if ( isDistanceChanged == DISTANCE_CHANGES::STOP )
+        isDistanceChanged = DISTANCE_CHANGES::BOTH;
+    else
+        isDistanceChanged = DISTANCE_CHANGES::LOW_POWER;
 }
 
 void RobotControll::sendPowerToRobotIfModified()
@@ -346,4 +404,52 @@ void RobotControll::sendPowerToRobotIfModified()
         sendOneWay(value, true);
         isCurrentPowerChanges = false;
     }
+
+    switch( isDistanceChanged )
+    {
+    case DISTANCE_CHANGES::STOP :
+        value.clear();
+        value.append("s");
+        value.append(ui->stopDistance->text());
+        value.append('#');
+        sendOneWay(value, true);
+        break;
+    case DISTANCE_CHANGES::LOW_POWER:
+        value.clear();
+        value.append("d");
+        value.append(ui->lowPowerDistance->text());
+        value.append('#');
+        sendOneWay(value, true);
+        break;
+    case DISTANCE_CHANGES::BOTH :
+        value.clear();
+        value.append("s");
+        value.append(ui->stopDistance->text());
+        value.append('#');
+        sendOneWay(value, true);
+        value.clear();
+        value.append("d");
+        value.append(ui->lowPowerDistance->text());
+        value.append('#');
+        sendOneWay(value, true);
+        break;
+    default:
+        break;
+    }
+    isDistanceChanged = DISTANCE_CHANGES::NONE;
+}
+
+void RobotControll::loadFilePath()
+{
+
+}
+
+void RobotControll::saveFilePath()
+{
+
+}
+
+void RobotControll::saveAsFilePath()
+{
+
 }
