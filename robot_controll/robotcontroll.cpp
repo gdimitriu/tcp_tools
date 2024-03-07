@@ -22,6 +22,7 @@
 #include "robotcontroll.h"
 #include "ui_robotcontroll.h"
 #include <QMessageBox>
+#include <QFileDialog>
 
 RobotControll::RobotControll(QWidget *parent) :
     QMainWindow(parent),
@@ -32,6 +33,7 @@ RobotControll::RobotControll(QWidget *parent) :
     currentButton = nullptr;
     isCurrentPowerChanges = false;
     init();
+    initUINavigation();
     isMinMaxPowerChanged = MIN_MAX_POWER_CHANGES::NONE;
     isDistanceChanged = DISTANCE_CHANGES::NONE;
 }
@@ -48,7 +50,6 @@ RobotControll::~RobotControll()
 void RobotControll::init()
 {
     //socket communication
-    ui->statusValue->setText("Disconnected");
     connect(ui->connectButton, SIGNAL(clicked(bool)), this, SLOT(connectTo()));
     connect(ui->disconnectButton, SIGNAL(clicked(bool)), this, SLOT(disconnectFrom()));
     //setup line termination
@@ -84,15 +85,38 @@ void RobotControll::init()
     //deploy config to Robot
     connect(ui->deployButton, SIGNAL(clicked(bool)), this, SLOT(deployToRobot()));
 
-    //running with path
+    //add status bar
+    QLabel *label = new QLabel(tr("Connected:"), this);
+    statusBar()->addWidget(label);
+    statusLine = new QLineEdit(this);
+    statusLine->setText("Disconnected");
+    statusLine->setMaxLength(12);
+    statusLine->setReadOnly(true);
+    statusBar()->addWidget(statusLine);
+    label = new QLabel(tr("Current file: "), this);
+    statusBar()->addWidget(label);
+    currentFile = new QLineEdit(this);
+    currentFile->setReadOnly(true);
+    statusBar()->addWidget(currentFile);
+}
+
+void RobotControll::initUINavigation()
+{
+    //create navigation path
     ui->itemPosition->addItem("First", QVariant::fromValue(ITEM_POSITION::FIRST));
     ui->itemPosition->addItem("Before", QVariant::fromValue(ITEM_POSITION::BEFORE));
     ui->itemPosition->addItem("Current", QVariant::fromValue(ITEM_POSITION::CURRENT));
     ui->itemPosition->addItem("After", QVariant::fromValue(ITEM_POSITION::AFTER));
     ui->itemPosition->addItem("Last", QVariant::fromValue(ITEM_POSITION::LAST));
 
-    //create UI for path
-    filePathMenu = menuBar()->addMenu(tr("&File Path"));
+    connect(ui->movePathButton, SIGNAL(clicked(bool)), this, SLOT(movePathItem()));
+    connect(ui->addPathButton, SIGNAL(clicked(bool)), this, SLOT(addPathItem()));
+    connect(ui->deletePathButton, SIGNAL(clicked(bool)), this, SLOT(deletePathItem()));
+    connect(ui->clearPathButton, SIGNAL(clicked(bool)), this, SLOT(clearPathItems()));
+    connect(ui->replacePathButton, SIGNAL(clicked(bool)), this, SLOT(replacePathItem()));
+
+    //create Menu for path
+    filePathMenu = menuBar()->addMenu(tr("&Navigation"));
     loadFilePathAction = new QAction(tr("&Load File Path"), this);
     loadFilePathAction->setShortcut(tr("Ctrl+L"));
     loadFilePathAction->setStatusTip(tr("Load a file which contains the robot path"));
@@ -108,8 +132,33 @@ void RobotControll::init()
     saveAsFilePathAction->setStatusTip(tr("Save a new file which contains the robot path"));
     connect(saveAsFilePathAction, SIGNAL(triggered(bool)), this, SLOT(saveAsFilePath()));
     filePathMenu->addAction(saveAsFilePathAction);
-}
 
+    //deploy navigation paths
+    filePathMenu->addSeparator();
+    deployNavigationPathAction = new QAction(tr("&Deploy path"));
+    deployNavigationPathAction->setShortcut(tr("Ctrl+D"));
+    deployNavigationPathAction->setStatusTip(tr("Deploy path to the robot"));
+    connect(deployNavigationPathAction, SIGNAL(triggered(bool)), this, SLOT(deployNavigationPath()));
+    filePathMenu->addAction(deployNavigationPathAction);
+    fetchNavigationPathAction = new QAction(tr("&Fetch path"));
+    fetchNavigationPathAction->setShortcut(tr("Ctrl+F"));
+    fetchNavigationPathAction->setStatusTip(tr("Fetch path from the robot"));
+    connect(fetchNavigationPathAction, SIGNAL(triggered(bool)), this, SLOT(fetchNavigationPath()));
+    filePathMenu->addAction(fetchNavigationPathAction);
+
+    //run navigation paths
+    filePathMenu->addSeparator();
+    runFowardWithPathAction = new QAction(tr("Run forward"));
+    runFowardWithPathAction->setStatusTip(tr("Run forward with the deployed navigation path"));
+    filePathMenu->addAction(runFowardWithPathAction);
+    runBackwardWithPathAction = new QAction(tr("Run backward"));
+    runBackwardWithPathAction->setStatusTip(tr("Run backward with the deployed navigation path"));
+    filePathMenu->addAction(runBackwardWithPathAction);
+
+    ui->deployedType->addItem("Memory", QVariant::fromValue(DEPLOY_RUN_TYPE::MEMORY));
+    ui->deployedType->addItem("File", QVariant::fromValue(DEPLOY_RUN_TYPE::FILE));
+    ui->deployedType->addItem("EEPROM", QVariant::fromValue(DEPLOY_RUN_TYPE::EEPROM));
+}
 
 void RobotControll::connectTo()
 {
@@ -134,18 +183,23 @@ void RobotControll::disconnectFrom()
 
 void RobotControll::sockDisconnected()
 {
-    ui->statusValue->setText("Disconnected");
+    statusLine->setText("Disconnected");
     repaint();
 }
 
 void RobotControll::sockConnected()
 {
-    ui->statusValue->setText("Connected");
+    statusLine->setText("Connected");
     repaint();
 }
 
 void RobotControll::forward()
 {
+    if ( !isConnected() )
+    {
+        ui->forwardButton->clearFocus();
+        return;
+    }
     sendPowerToRobotIfModified();
     sendOneWay("M1,0#");
     currentButton = ui->forwardButton;
@@ -153,6 +207,11 @@ void RobotControll::forward()
 
 void RobotControll::backward()
 {
+    if ( !isConnected() )
+    {
+        ui->backwardButton->clearFocus();
+        return;
+    }
     sendPowerToRobotIfModified();
     sendOneWay("M-1,0#");
     currentButton = ui->backwardButton;
@@ -160,6 +219,11 @@ void RobotControll::backward()
 
 void RobotControll::left()
 {
+    if ( !isConnected() )
+    {
+        ui->leftButton->clearFocus();
+        return;
+    }
     sendPowerToRobotIfModified();
     sendOneWay("M0,-1#");
     currentButton = ui->leftButton;
@@ -167,6 +231,11 @@ void RobotControll::left()
 
 void RobotControll::right()
 {
+    if ( !isConnected() )
+    {
+        ui->rightButton->clearFocus();
+        return;
+    }
     sendPowerToRobotIfModified();
     sendOneWay("M0,1#");
     currentButton = ui->rightButton;
@@ -174,6 +243,19 @@ void RobotControll::right()
 
 void RobotControll::stop()
 {
+    if ( !isConnected() )
+    {
+        if ( currentButton != nullptr )
+        {
+            currentButton->clearFocus();
+            currentButton = nullptr;
+        }
+        else
+        {
+            ui->stopButton->clearFocus();
+        }
+        return;
+    }
     sendOneWay("b#");
     if ( currentButton != nullptr )
     {
@@ -225,7 +307,7 @@ QString RobotControll::sendWithReply(QString message)
     }
     else
     {
-        QMessageBox::critical(this, tr("First connect to server."), tr("First connect to server"), QMessageBox::Ok);
+        QMessageBox::critical(this, tr("First connect to robot."), tr("First connect to robot"), QMessageBox::Ok);
     }
     return "";
 }
@@ -264,12 +346,17 @@ void RobotControll::sendOneWay(QString message, bool hasAck)
     }
     else
     {
-        QMessageBox::critical(this, tr("First connect to server."), tr("First connect to server"), QMessageBox::Ok);
+        QMessageBox::critical(this, tr("First connect to robot."), tr("First connect to robot"), QMessageBox::Ok);
     }
 }
 
 void RobotControll::deployToRobot()
 {
+    if ( !isConnected() )
+    {
+        ui->deployButton->clearFocus();
+        return;
+    }
     QString value;
     value.append("V");
     value.append(ui->maximumPower->text());
@@ -300,6 +387,11 @@ void RobotControll::deployToRobot()
 
 void RobotControll::fetchFromRobot()
 {
+    if ( !isConnected() )
+    {
+        ui->fetchButton->clearFocus();
+        return;
+    }
     QString value = sendWithReply("V#");
     ui->maximumPower->setText(value.trimmed());
     value = sendWithReply("v#");
@@ -441,15 +533,184 @@ void RobotControll::sendPowerToRobotIfModified()
 
 void RobotControll::loadFilePath()
 {
-
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Load Path File"), ".", tr("Text files (*.txt)"));
+    if ( filePath != nullptr || filePath.isEmpty() )
+        return;
+    currentFile->setText(filePath);
 }
 
 void RobotControll::saveFilePath()
 {
-
+    if ( currentFile->text().isEmpty() )
+    {
+        QMessageBox::critical(this, tr("First select a file."), tr("First select a file."), QMessageBox::Ok);
+    }
 }
 
 void RobotControll::saveAsFilePath()
 {
+    QString filePath = QFileDialog::getSaveFileName(this, tr("Save As Path File"), ".", tr("Text files (*.txt)"));
+    if ( filePath != nullptr || filePath.isEmpty() )
+        return;
+    currentFile->setText(filePath);
+}
 
+void RobotControll::addPathItem()
+{
+    int currentPos = ui->listWidget->currentRow();
+    switch((ITEM_POSITION) ui->itemPosition->currentData().value<ITEM_POSITION>() )
+    {
+    case ITEM_POSITION::FIRST :
+        ui->listWidget->insertItem(0, ui->newPathCommand->text());
+        break;
+    case ITEM_POSITION::BEFORE :
+        if ( currentPos == -1 )
+        {
+            QMessageBox::critical(this, tr("First select an item."), tr("First select an item"), QMessageBox::Ok);
+             ui->addPathButton->clearFocus();
+            return;
+        }
+        if ( currentPos == 0 )
+            currentPos = 1;
+        ui->listWidget->insertItem(currentPos - 1, ui->newPathCommand->text());
+        break;
+    case ITEM_POSITION::CURRENT :
+        if ( currentPos == -1 )
+        {
+            QMessageBox::critical(this, tr("First select an item."), tr("First select an item"), QMessageBox::Ok);
+             ui->addPathButton->clearFocus();
+            return;
+        }
+        if ( currentPos == 0 )
+            currentPos = 1;
+        ui->listWidget->insertItem(currentPos, ui->newPathCommand->text());
+        break;
+    case ITEM_POSITION::AFTER :
+        if ( currentPos == -1 )
+        {
+            QMessageBox::critical(this, tr("First select an item."), tr("First select an item"), QMessageBox::Ok);
+             ui->addPathButton->clearFocus();
+            return;
+        }
+        ui->listWidget->insertItem(currentPos + 1, ui->newPathCommand->text());
+        break;
+    case ITEM_POSITION::LAST :
+        ui->listWidget->addItem(ui->newPathCommand->text());
+        break;
+    }
+    ui->addPathButton->clearFocus();
+}
+
+void RobotControll::deletePathItem()
+{
+    ui->listWidget->takeItem(ui->listWidget->currentRow());
+    ui->deletePathButton->clearFocus();
+}
+
+void RobotControll::movePathItem()
+{
+    int currentPos = ui->listWidget->currentRow();
+
+    QListWidgetItem *element = ui->listWidget->takeItem(currentPos);
+
+    switch((ITEM_POSITION) ui->itemPosition->currentData().value<ITEM_POSITION>() )
+    {
+    case ITEM_POSITION::FIRST :
+        ui->listWidget->insertItem(0, element);
+        break;
+    case ITEM_POSITION::BEFORE :
+        if ( currentPos == -1 )
+        {
+            QMessageBox::critical(this, tr("First select an item."), tr("First select an item"), QMessageBox::Ok);
+             ui->movePathButton->clearFocus();
+            return;
+        }
+        if ( currentPos == 0 )
+            currentPos = 1;
+        ui->listWidget->insertItem(currentPos - 1, element);
+        break;
+    case ITEM_POSITION::CURRENT :
+        if ( currentPos == -1 )
+        {
+            QMessageBox::critical(this, tr("First select an item."), tr("First select an item"), QMessageBox::Ok);
+             ui->movePathButton->clearFocus();
+            return;
+        }
+        break;
+    case ITEM_POSITION::AFTER :
+        if ( currentPos == -1 )
+        {
+            QMessageBox::critical(this, tr("First select an item."), tr("First select an item"), QMessageBox::Ok);
+             ui->movePathButton->clearFocus();
+            return;
+        }
+        ui->listWidget->insertItem(currentPos + 1, element);
+        break;
+    case ITEM_POSITION::LAST :
+        ui->listWidget->addItem(element);
+        break;
+    }
+    ui->movePathButton->clearFocus();
+}
+
+void RobotControll::replacePathItem()
+{
+    int currentPos = ui->listWidget->currentRow();
+    if ( currentPos == -1 )
+    {
+        ui->editPathButton->clearFocus();
+        return;
+    }
+    QListWidgetItem *element = ui->listWidget->currentItem();
+    element->setText(ui->newPathCommand->text());
+}
+
+void RobotControll::clearPathItems()
+{
+    ui->listWidget->clear();
+    ui->clearPathButton->clearFocus();
+}
+
+void RobotControll::deployNavigationPath()
+{
+    if ( !isConnected() )
+    {
+        ui->deployButton->clearFocus();
+        return;
+    }
+}
+
+void RobotControll::fetchNavigationPath()
+{
+    if ( !isConnected() )
+    {
+        ui->fetchButton->clearFocus();
+        return;
+    }
+}
+
+void RobotControll::runForwardWithPath()
+{
+    if ( !isConnected() )
+    {
+        return;
+    }
+}
+
+void RobotControll::runBackwardWithPath()
+{
+    if ( !isConnected() )
+    {
+        return;
+    }
+}
+
+bool RobotControll::isConnected()
+{
+    if ( socket != nullptr && socket->isOpen() )
+    {
+        return true;
+    }
+    QMessageBox::critical(this, tr("First connect to robot."), tr("First connect to robot"), QMessageBox::Ok);
+    return false;
 }

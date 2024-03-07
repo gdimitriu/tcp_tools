@@ -26,6 +26,8 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QPushButton>
+#include <QStatusBar>
+#include <QLineEdit>
 #include <QMenu>
 
 namespace Ui {
@@ -42,9 +44,9 @@ private slots:
     void sockDisconnected();
     void forward();
     void backward();
+    void stop();
     void left();
     void right();
-    void stop();
     void powerChanged(int value);
     void deployToRobot();
     void fetchFromRobot();
@@ -55,19 +57,27 @@ private slots:
     void loadFilePath();
     void saveFilePath();
     void saveAsFilePath();
+    void deployNavigationPath();
+    void fetchNavigationPath();
+    void addPathItem();
+    void deletePathItem();
+    void movePathItem();
+    void replacePathItem();
+    void clearPathItems();
+    void runForwardWithPath();
+    void runBackwardWithPath();
 public:
     explicit RobotControll(QWidget *parent = 0);
     ~RobotControll();
     enum class LINE_TERMINATION { NONE = 0, LF = 1, CR = 2, CR_LF = 3};
     Q_ENUM(LINE_TERMINATION)
-    enum class MIN_MAX_POWER_CHANGES { NONE = 0, MIN = 1, MAX = 2, MINMAX = 3};
-    Q_ENUM(MIN_MAX_POWER_CHANGES)
-    enum class DISTANCE_CHANGES { NONE = 0, LOW_POWER = 1, STOP = 2, BOTH =3};
-    Q_ENUM(DISTANCE_CHANGES)
     enum class ITEM_POSITION {FIRST = 0, BEFORE = 1, CURRENT = 2, AFTER = 3, LAST = 4};
     Q_ENUM(ITEM_POSITION)
+    enum class DEPLOY_RUN_TYPE {MEMORY = 0, FILE = 1, EEPROM = 2};
+    Q_ENUM(DEPLOY_RUN_TYPE)
 private:
     void init();
+    void initUINavigation();
     QString sendWithReply(QString message);
     void sendOneWay(QString message, bool hasAck = false);
     void sendPowerToRobotIfModified();
@@ -76,15 +86,26 @@ private:
     Ui::RobotControll *ui;
     QPushButton *currentButton;
 
-    bool isCurrentPowerChanges;    
+    bool isCurrentPowerChanges;
+    enum class MIN_MAX_POWER_CHANGES { NONE = 0, MIN = 1, MAX = 2, MINMAX = 3};
     MIN_MAX_POWER_CHANGES isMinMaxPowerChanged;
+    enum class DISTANCE_CHANGES { NONE = 0, LOW_POWER = 1, STOP = 2, BOTH =3};
     DISTANCE_CHANGES isDistanceChanged;
 
     QMenu *filePathMenu;
     QAction *loadFilePathAction;
     QAction *saveFilePathAction;
     QAction *saveAsFilePathAction;
-    QString currentFile;
+    QAction *deployNavigationPathAction;
+    QAction *fetchNavigationPathAction;
+    QAction *runFowardWithPathAction;
+    QAction *runBackwardWithPathAction;
+
+    bool isConnected();
+
+    //status line
+    QLineEdit *currentFile;
+    QLineEdit *statusLine;
 };
 
 #endif // ROBOTCONTROLL_H

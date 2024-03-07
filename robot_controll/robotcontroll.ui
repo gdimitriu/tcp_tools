@@ -10,13 +10,13 @@
     <x>0</x>
     <y>0</y>
     <width>1026</width>
-    <height>768</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1026</width>
-    <height>768</height>
+    <height>800</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -90,26 +90,13 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QLineEdit" name="statusValue">
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
    <widget class="QSlider" name="powerLevel">
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>450</y>
+      <y>440</y>
       <width>31</width>
       <height>281</height>
      </rect>
@@ -140,7 +127,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>410</y>
+      <y>380</y>
       <width>81</width>
       <height>32</height>
      </rect>
@@ -173,52 +160,13 @@
      </url>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>422</x>
-      <y>42</y>
-      <width>566</width>
-      <height>36</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <widget class="QLabel" name="cameraPortLabel">
-       <property name="text">
-        <string>Camera Port</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="cameraPort"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="connectStreamButton">
-       <property name="text">
-        <string>Connect Stream</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="disconnectStreamButton">
-       <property name="text">
-        <string>Disconnect Stream</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="streamingType"/>
-     </item>
-    </layout>
-   </widget>
    <widget class="QListWidget" name="listWidget">
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>90</y>
+      <y>80</y>
       <width>191</width>
-      <height>241</height>
+      <height>271</height>
      </rect>
     </property>
    </widget>
@@ -226,7 +174,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>610</y>
+      <y>600</y>
       <width>268</width>
       <height>118</height>
      </rect>
@@ -277,7 +225,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>370</y>
+      <y>360</y>
       <width>308</width>
       <height>226</height>
      </rect>
@@ -382,135 +330,75 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLineEdit" name="newCommand">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>201</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>201</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>201</width>
-      <height>16777215</height>
-     </size>
-    </property>
-   </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>140</y>
-      <width>180</width>
-      <height>196</height>
+      <y>80</y>
+      <width>184</width>
+      <height>274</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <item>
-        <widget class="QPushButton" name="deployPathButton">
-         <property name="text">
-          <string>Deploy</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="fetchPathButton">
-         <property name="text">
-          <string>Fetch</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="runLabel">
-         <property name="text">
-          <string>Run</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="runForwardButton">
-         <property name="text">
-          <string>Forward</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="runReverseButton">
-         <property name="text">
-          <string>Reverse</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="newPathCommand">
+         <property name="minimumSize">
+          <size>
+           <width>180</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>180</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QComboBox" name="itemPosition"/>
        </item>
        <item>
-        <widget class="QPushButton" name="moveButton">
+        <widget class="QPushButton" name="movePathButton">
          <property name="text">
           <string>Move</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="addButton">
+        <widget class="QPushButton" name="addPathButton">
          <property name="text">
           <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="deleteButton">
+        <widget class="QPushButton" name="deletePathButton">
          <property name="text">
           <string>Delete</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="replacePathButton">
+         <property name="text">
+          <string>Replace</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="clearPathButton">
+         <property name="text">
+          <string>Clear</string>
          </property>
         </widget>
        </item>
       </layout>
      </item>
     </layout>
-   </widget>
-   <widget class="QPushButton" name="editButton">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>50</y>
-      <width>88</width>
-      <height>34</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Edit</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="clearPathButton">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>50</y>
-      <width>84</width>
-      <height>34</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Clear</string>
-    </property>
    </widget>
    <widget class="QPlainTextEdit" name="debugView">
     <property name="geometry">
@@ -528,8 +416,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>610</y>
+      <x>420</x>
+      <y>590</y>
       <width>94</width>
       <height>116</height>
      </rect>
@@ -558,18 +446,72 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLineEdit" name="filePath">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
-      <width>201</width>
-      <height>32</height>
+      <y>40</y>
+      <width>953</width>
+      <height>38</height>
      </rect>
     </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_11">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
+       <item>
+        <widget class="QComboBox" name="deployedType"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="deployedFileLabel">
+         <property name="text">
+          <string>Deployed File</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="deployedFile">
+         <property name="minimumSize">
+          <size>
+           <width>230</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="cameraPortLabel">
+         <property name="text">
+          <string>Camera Port</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="cameraPort"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="connectStreamButton">
+         <property name="text">
+          <string>Connect Stream</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="disconnectStreamButton">
+         <property name="text">
+          <string>Disconnect Stream</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="streamingType"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
@@ -581,11 +523,7 @@
    <zorder>currentPowerLevel</zorder>
    <zorder>powerLevel</zorder>
    <zorder>listWidget</zorder>
-   <zorder>newCommand</zorder>
-   <zorder>editButton</zorder>
-   <zorder>clearPathButton</zorder>
    <zorder>debugView</zorder>
-   <zorder>filePath</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -597,6 +535,7 @@
     </rect>
    </property>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
