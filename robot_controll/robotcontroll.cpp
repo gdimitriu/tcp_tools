@@ -658,7 +658,7 @@ void RobotControll::replacePathItem()
     int currentPos = ui->listWidget->currentRow();
     if ( currentPos == -1 )
     {
-        ui->editPathButton->clearFocus();
+        ui->replacePathButton->clearFocus();
         return;
     }
     QListWidgetItem *element = ui->listWidget->currentItem();
