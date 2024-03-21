@@ -66,6 +66,8 @@ private slots:
     void clearPathItems();
     void runForwardWithPath();
     void runBackwardWithPath();
+    void connectStream();
+    void disconnectStream();
 public:
     explicit RobotControll(QWidget *parent = 0);
     ~RobotControll();

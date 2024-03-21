@@ -9,20 +9,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1026</width>
+    <width>1300</width>
     <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1026</width>
+    <width>1300</width>
     <height>800</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1026</width>
-    <height>768</height>
+    <width>1300</width>
+    <height>800</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -95,7 +95,7 @@
    <widget class="QSlider" name="powerLevel">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>440</x>
       <y>440</y>
       <width>31</width>
       <height>281</height>
@@ -126,9 +126,9 @@
    <widget class="QLineEdit" name="currentPowerLevel">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>380</x>
       <y>380</y>
-      <width>81</width>
+      <width>121</width>
       <height>32</height>
      </rect>
     </property>
@@ -136,8 +136,8 @@
    <widget class="QWebEngineView" name="streamImage">
     <property name="geometry">
      <rect>
-      <x>421</x>
-      <y>83</y>
+      <x>530</x>
+      <y>90</y>
       <width>591</width>
       <height>501</height>
      </rect>
@@ -165,7 +165,7 @@
      <rect>
       <x>220</x>
       <y>80</y>
-      <width>191</width>
+      <width>301</width>
       <height>271</height>
      </rect>
     </property>
@@ -403,8 +403,8 @@
    <widget class="QPlainTextEdit" name="debugView">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>590</y>
+      <x>660</x>
+      <y>600</y>
       <width>461</width>
       <height>131</height>
      </rect>
@@ -416,8 +416,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>590</y>
+      <x>540</x>
+      <y>600</y>
       <width>94</width>
       <height>116</height>
      </rect>
@@ -451,7 +451,7 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>953</width>
+      <width>1067</width>
       <height>38</height>
      </rect>
     </property>
@@ -472,7 +472,7 @@
         <widget class="QLineEdit" name="deployedFile">
          <property name="minimumSize">
           <size>
-           <width>230</width>
+           <width>400</width>
            <height>0</height>
           </size>
          </property>
@@ -513,6 +513,45 @@
      </item>
     </layout>
    </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>309</x>
+      <y>620</y>
+      <width>121</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Movement</string>
+    </property>
+    <widget class="QRadioButton" name="cameraRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>105</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Camera</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="robotRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>105</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Robot</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
@@ -524,13 +563,14 @@
    <zorder>powerLevel</zorder>
    <zorder>listWidget</zorder>
    <zorder>debugView</zorder>
+   <zorder>groupBox</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1026</width>
+     <width>1300</width>
      <height>30</height>
     </rect>
    </property>

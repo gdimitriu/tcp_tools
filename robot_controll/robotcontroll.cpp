@@ -68,6 +68,8 @@ void RobotControll::init()
     connect(ui->rightButton, SIGNAL(pressed()), this, SLOT(right()));
     connect(ui->rightButton, SIGNAL(released()), this, SLOT(stop()));
     connect(ui->stopButton, SIGNAL(clicked(bool)), this, SLOT(stop()));
+    ui->robotRadioButton->setChecked(true);
+    ui->cameraRadioButton->setChecked(false);
 
     // power level
     ui->maximumPower->setText("4095");
@@ -98,6 +100,12 @@ void RobotControll::init()
     currentFile = new QLineEdit(this);
     currentFile->setReadOnly(true);
     statusBar()->addWidget(currentFile);
+
+    //steaming
+    connect(ui->connectStreamButton, SIGNAL(clicked(bool)), this , SLOT(connectStream()));
+    connect(ui->disconnectStreamButton, SIGNAL(clicked(bool)), this, SLOT(disconnectStream()));
+    ui->streamingType->addItem("http","http");
+    ui->streamingType->addItem("vlc", "vlc");
 }
 
 void RobotControll::initUINavigation()
@@ -200,8 +208,11 @@ void RobotControll::forward()
         ui->forwardButton->clearFocus();
         return;
     }
-    sendPowerToRobotIfModified();
-    sendOneWay("M1,0#");
+    if ( ui->robotRadioButton->isChecked() )
+    {
+        sendPowerToRobotIfModified();
+        sendOneWay("M1,0#");
+    }
     currentButton = ui->forwardButton;
 }
 
@@ -212,8 +223,11 @@ void RobotControll::backward()
         ui->backwardButton->clearFocus();
         return;
     }
-    sendPowerToRobotIfModified();
-    sendOneWay("M-1,0#");
+    if ( ui->robotRadioButton->isChecked() )
+    {
+        sendPowerToRobotIfModified();
+        sendOneWay("M-1,0#");
+    }
     currentButton = ui->backwardButton;
 }
 
@@ -224,8 +238,11 @@ void RobotControll::left()
         ui->leftButton->clearFocus();
         return;
     }
-    sendPowerToRobotIfModified();
-    sendOneWay("M0,-1#");
+    if ( ui->robotRadioButton->isChecked() )
+    {
+        sendPowerToRobotIfModified();
+        sendOneWay("M0,-1#");
+    }
     currentButton = ui->leftButton;
 }
 
@@ -236,8 +253,11 @@ void RobotControll::right()
         ui->rightButton->clearFocus();
         return;
     }
-    sendPowerToRobotIfModified();
-    sendOneWay("M0,1#");
+    if ( ui->robotRadioButton->isChecked() )
+    {
+        sendPowerToRobotIfModified();
+        sendOneWay("M0,1#");
+    }
     currentButton = ui->rightButton;
 }
 
@@ -256,7 +276,8 @@ void RobotControll::stop()
         }
         return;
     }
-    sendOneWay("b#");
+    if ( ui->robotRadioButton->isChecked() )
+        sendOneWay("b#");
     if ( currentButton != nullptr )
     {
         currentButton->clearFocus();
@@ -713,4 +734,20 @@ bool RobotControll::isConnected()
     }
     QMessageBox::critical(this, tr("First connect to robot."), tr("First connect to robot"), QMessageBox::Ok);
     return false;
+}
+
+void RobotControll::connectStream()
+{
+    if ( ui->streamingType->currentText() == QString("http") )
+    {
+        QUrl url("http://" + ui->ipValue->text() + ":" + ui->cameraPort->text());
+        ui->streamImage->load(url);
+    }
+    ui->connectStreamButton->clearFocus();
+}
+
+void RobotControll::disconnectStream()
+{
+    ui->streamImage->close();
+    ui->connectStreamButton->clearFocus();
 }
