@@ -2,7 +2,6 @@
 #include "ui_tcpterminal.h"
 #include <QMessageBox>
 
-
 TcpTerminal::TcpTerminal(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::TcpTerminal)
