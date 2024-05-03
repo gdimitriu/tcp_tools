@@ -27,7 +27,7 @@ void TcpTerminal::init()
     connect(ui->disconnectButton, SIGNAL(clicked(bool)), this, SLOT(disconnectFrom()));
     connect(ui->sendButton, SIGNAL(clicked(bool)), this, SLOT(sendData()));
     connect(ui->clearButton, SIGNAL(clicked(bool)), this, SLOT(clearReceiveData()));
-
+    connect(ui->sendValue, SIGNAL(returnPressed()), this, SLOT(sendData()));
 }
 
 void TcpTerminal::connectTo()
@@ -66,6 +66,7 @@ void TcpTerminal::sockConnected()
 void TcpTerminal::clearReceiveData()
 {
     ui->receiveData->clear();
+    ui->clearButton->clearFocus();
 }
 
 void TcpTerminal::sendData()
@@ -96,8 +97,9 @@ void TcpTerminal::sendData()
                 ui->receiveData->insertPlainText(QString::fromUtf8(readData));
             }
             QMainWindow::repaint();
-            ui->sendButton->clearFocus();
+
         }
+         ui->sendButton->clearFocus();
     }
     else
     {
